@@ -1,6 +1,8 @@
 /**
  * @author <Pham Minh Hoa - s3929256>
  */
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -103,5 +105,19 @@ public class Claim {
     public void setReceiverBankInfo(String receiverBankInfo) {
         this.receiverBankInfo = receiverBankInfo;
     }
+
+    public List<Claim> sortByStatusAndDate(List<Claim> claims) {
+        List<Claim> sortedClaims = new ArrayList<>(claims); // Copy the input list of claims
+        Collections.sort(sortedClaims, (c1, c2) -> {
+            int statusComparison = c1.getStatus().compareTo(c2.getStatus());
+            if (statusComparison != 0) {
+                return statusComparison;
+            } else {
+                return c1.getClaimDate().compareTo(c2.getClaimDate());
+            }
+        });
+        return sortedClaims;
+    }
+
 }
 

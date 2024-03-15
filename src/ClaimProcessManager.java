@@ -11,5 +11,5 @@ public interface ClaimProcessManager {
     Claim getClaim(String id);
     List<Claim> getAllClaims();
 
-    List<Customer> customers = new ArrayList<>();
+    List<Customer> getAllCustomers();
 }
