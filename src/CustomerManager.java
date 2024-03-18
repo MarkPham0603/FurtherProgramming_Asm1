@@ -1,6 +1,7 @@
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,4 +35,5 @@ public class CustomerManager {
         // ... (Write data to the file using customer information)
         writer.close();
     }
+
 }

@@ -1,6 +1,9 @@
 /**
  * @author <Pham Minh Hoa - s3929256>
  */
+import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -50,7 +53,7 @@ public class Claim {
         this.claimDate = claimDate;
     }
 
-    public Customer getInsuredPerson() {
+    public Customer getInsuredPerson(String customerID) {
         return insuredPerson;
     }
 
@@ -117,6 +120,71 @@ public class Claim {
             }
         });
         return sortedClaims;
+    }
+
+    public List<Claim> readClaimsFromFile(String filename) throws IOException, ParseException {
+        List<Claim> claims = new ArrayList<>();
+        BufferedReader reader = new BufferedReader(new FileReader(filename));
+
+        String line;
+        reader.readLine(); // Skip header row (if present)
+        while ((line = reader.readLine()) != null) {
+            String[] data = line.split(",");
+
+            // Parse claim data fields
+            String id = data[0];
+            Date claimDate = new SimpleDateFormat("yyyy-MM-dd").parse(data[1]); // Adjust date format if needed
+            String customerID = data[2]; // Assuming customerID used to link to Customer
+            String cardNumber = data[3];
+            Date examDate = new SimpleDateFormat("yyyy-MM-dd").parse(data[4]); // Adjust date format if needed
+
+            // ... (parsing for documentPaths, claimAmount, status, receiverBankInfo)
+            List<String> documentPaths = new ArrayList<>();
+            for (String path : data[5].split(";")) { // Change delimiter if paths use different separator (e.g., ",")
+                documentPaths.add(path.trim());
+            }
+
+            double claimAmount = Double.parseDouble(data[6]);
+            String status = data[7];
+            String receiverBankInfo = data[8];
+
+            // Retrieve Customer object based on customerID
+            Customer insuredPerson = getInsuredPerson(customerID); // Replace with your actual customer retrieval logic
+
+            // Create and add Claim object
+            Claim claim = new Claim(id, claimDate, insuredPerson, cardNumber, examDate, documentPaths, claimAmount, status, receiverBankInfo);
+            claims.add(claim);
+        }
+
+        reader.close();
+        return claims;
+    }
+
+    public void writeToFile(String filename) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+
+        // Write header row (optional)
+        writer.write("id,claimDate,insuredPerson,cardNumber,examDate,documentPaths,claimAmount,status,receiverBankInfo\n");
+
+        // Format claim data for CSV
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); // Adjust date format if needed
+
+        String documentList = String.join(",", documents); // Join document paths with comma separator
+
+        writer.write(String.format(
+                "%s,%s,%s,%s,%s,%s,%.2f,%s,%s\n",
+                id,
+                dateFormat.format(claimDate),
+                insuredPerson, // Assuming getCustomerID() returns customer ID
+                cardNumber,
+                dateFormat.format(examDate),
+                documentList,
+                claimAmount,
+                status,
+                receiverBankInfo
+        ));
+
+        writer.close();
     }
 
 }
