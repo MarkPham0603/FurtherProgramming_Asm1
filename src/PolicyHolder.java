@@ -12,7 +12,9 @@ public class PolicyHolder extends Customer {
     // Getters, setters, constructor (including handling dependents and insurance card)
 
 
-    public PolicyHolder(List<Dependent> dependents, InsuranceCard insuranceCard) {
+    public PolicyHolder(String id, String fullName, List<Dependent> dependents, InsuranceCard insuranceCard) {
+        super.setId(id);
+        super.setFullName(fullName);
         this.dependents = dependents;
         this.insuranceCard = insuranceCard;
     }
@@ -33,9 +35,21 @@ public class PolicyHolder extends Customer {
         this.insuranceCard = insuranceCard;
     }
 
+
+
     @Override
     public String getType() {
         return "Policy Holder";
+    }
+
+    @Override
+    public String getFullName() {
+        return super.getFullName();
+    }
+
+    @Override
+    public String getID(){
+        return super.getId();
     }
 
     public List<Dependent> sortDependentsByName() {

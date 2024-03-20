@@ -31,10 +31,6 @@ public abstract class Customer {
         this.id = id;
     }
 
-    public String getFullName() {
-        return fullName;
-    }
-
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
@@ -48,4 +44,10 @@ public abstract class Customer {
     }
 
     public abstract String getType(); // differentiate PolicyHolder and Dependent
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public abstract String getID();
 }

@@ -24,4 +24,9 @@ public class Dependent extends Customer {
     public String getType() {
         return "Dependent";
     }
+
+    @Override
+    public String getFullName() {
+        return super.getFullName();
+    }
 }
