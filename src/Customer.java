@@ -49,5 +49,7 @@ public abstract class Customer {
         return fullName;
     }
 
-    public abstract String getID();
+    public String getID() {
+        return id;
+    }
 }

@@ -13,21 +13,21 @@ public class InsuranceCard {
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
     private String cardNumber;
-    private Customer cardHolder;
-    private PolicyHolder policyOwner;
+    private PolicyHolder cardHolder;
+    private String policyOwner;
     private Date expirationDate;
 
     // Getters, setters, constructor (ensure only one card holder)
 
-    public InsuranceCard(String cardNumber, Customer cardHolder,
-                         PolicyHolder policyOwner, Date expirationDate) {
+    public InsuranceCard(String cardNumber, PolicyHolder cardHolder,
+                         String policyOwner, Date expirationDate) {
         this.cardNumber = cardNumber;
         this.cardHolder = cardHolder;
         this.policyOwner = policyOwner;
         this.expirationDate = expirationDate;
     }
 
-    public void setCardHolder(Customer cardHolder) {
+    public void setCardHolder(PolicyHolder cardHolder) {
         if (!(cardHolder instanceof PolicyHolder)) {
             throw new IllegalArgumentException("Only PolicyHolder can be a card holder");
         }
@@ -46,11 +46,11 @@ public class InsuranceCard {
         this.cardNumber = cardNumber;
     }
 
-    public PolicyHolder getPolicyOwner() {
+    public String getPolicyOwner() {
         return policyOwner;
     }
 
-    public void setPolicyOwner(PolicyHolder policyOwner) {
+    public void setPolicyOwner(String policyOwner) {
         this.policyOwner = policyOwner;
     }
 
@@ -67,7 +67,7 @@ public class InsuranceCard {
         try (PrintWriter writer = new PrintWriter(new FileWriter(file, true))) { // Append mode (true)
             writer.println(cardNumber + "|" +
                     cardHolder.getId() + "|" +  // Assuming getId() in Customer
-                    policyOwner.getId() + "|" +  // Assuming getId() in PolicyHolder
+                    policyOwner + "|" +  // Assuming getId() in PolicyHolder
                     DATE_FORMAT.format(expirationDate));
         }
     }
@@ -94,8 +94,8 @@ public class InsuranceCard {
                 Date expirationDate = DATE_FORMAT.parse(data[3]);
 
                 // Replace with logic to find PolicyHolder and Customer objects based on IDs
-                Customer cardHolder = null; // Implement logic to find card holder by ID
-                PolicyHolder policyOwner = null; // Implement logic to find policy owner by ID
+                PolicyHolder cardHolder = null; // Implement logic to find card holder by ID
+                String policyOwner = null; // Implement logic to find policy owner by ID
 
                 return new InsuranceCard(cardNumber, cardHolder, policyOwner, expirationDate);
             }

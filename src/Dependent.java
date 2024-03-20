@@ -29,4 +29,9 @@ public class Dependent extends Customer {
     public String getFullName() {
         return super.getFullName();
     }
+
+    @Override
+    public String getID() {
+        return super.getID();
+    }
 }
