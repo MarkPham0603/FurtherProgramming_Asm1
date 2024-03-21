@@ -18,14 +18,14 @@ public class Claim {
     private List<String> documents; // List of document paths
     private double claimAmount;
     private String status; // New, Processing, Done
-    private String receiverBankInfo;
+    private ReceiverBankInfo receiverBankInfo;
 
     // constructor
 
 
     public Claim(String id, Date claimDate, Customer insuredPerson,
                  String cardNumber, Date examDate, List<String> documents,
-                 double claimAmount, String status, String receiverBankInfo) {
+                 double claimAmount, String status, ReceiverBankInfo receiverBankInfo) {
         this.id = id;
         this.claimDate = claimDate;
         this.insuredPerson = insuredPerson;
@@ -101,11 +101,11 @@ public class Claim {
         this.status = status;
     }
 
-    public String getReceiverBankInfo() {
+    public ReceiverBankInfo getReceiverBankInfo() {
         return receiverBankInfo;
     }
 
-    public void setReceiverBankInfo(String receiverBankInfo) {
+    public void setReceiverBankInfo(ReceiverBankInfo receiverBankInfo) {
         this.receiverBankInfo = receiverBankInfo;
     }
 
@@ -138,7 +138,8 @@ public class Claim {
             String cardNumber = data[3];
             Date examDate = new SimpleDateFormat("yyyy-MM-dd").parse(data[4]); // Adjust date format if needed
 
-            // ... (parsing for documentPaths, claimAmount, status, receiverBankInfo)
+            // ... (parsing for documentPaths, claimAmount, status) ...
+
             List<String> documentPaths = new ArrayList<>();
             for (String path : data[5].split(";")) { // Change delimiter if paths use different separator (e.g., ",")
                 documentPaths.add(path.trim());
@@ -146,7 +147,13 @@ public class Claim {
 
             double claimAmount = Double.parseDouble(data[6]);
             String status = data[7];
-            String receiverBankInfo = data[8];
+
+            // Parse receiver bank info (assuming data[8] contains comma-separated bank name, account name, account number)
+            String[] bankInfo = data[8].split(",");
+            String bankName = bankInfo[0];
+            String accountName = bankInfo[1];
+            String accountNumber = bankInfo[2];
+            ReceiverBankInfo receiverBankInfo = new ReceiverBankInfo(bankName, accountName, accountNumber);
 
             // Retrieve Customer object based on customerID
             Customer insuredPerson = getInsuredPerson(customerID); // Replace with your actual customer retrieval logic
@@ -181,11 +188,10 @@ public class Claim {
                 documentList,
                 claimAmount,
                 status,
-                receiverBankInfo
+                receiverBankInfo.getBankName() + "," + receiverBankInfo.getAccountName() + "," + receiverBankInfo.getAccountNumber()
         ));
 
         writer.close();
     }
-
 }
 
