@@ -6,7 +6,7 @@ import java.util.List;
 public class Dependent extends Customer {
     private PolicyHolder policyHolder;
 
-    // Getters, setters, constructor (including referencing policy holder)
+    // Getters, setters, constructor (including referencing policyholder)
 
     public Dependent(PolicyHolder policyHolder) {
         this.policyHolder = policyHolder;
