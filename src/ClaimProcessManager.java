@@ -14,4 +14,10 @@ public interface ClaimProcessManager {
     List<Customer> getAllCustomers();
 
     List<Claim> filterClaimsByStatus(String status);
+
+    void registerCustomer(Customer customer);
+
+    void updateCustomer(Customer updatedCustomer);
+
+    void removeCustomer(Customer customerToRemove);
 }

@@ -1,12 +1,43 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-
-public class InMemoryClaimProcessManager implements ClaimProcessManager{
+public class DefaultClaimProcessManager implements ClaimProcessManager{
+    private List<Customer> customers;
     private List<Claim> claims;
 
-    public InMemoryClaimProcessManager() {
+    public DefaultClaimProcessManager() {
+        this.customers = new ArrayList<>();
         this.claims = new ArrayList<>();
+    }
+
+    @Override
+    public List<Customer> getAllCustomers() {
+        return Collections.unmodifiableList(customers); // Return an unmodifiable list
+    }
+
+    @Override
+    public void registerCustomer(Customer customer) {
+        customers.add(customer);
+    }
+    @Override
+    public void updateCustomer(Customer updatedCustomer) {
+        int index = customers.indexOf(updatedCustomer);
+        if (index != -1) {
+            customers.set(index, updatedCustomer); // Update the object at the found index
+            System.out.println("Customer information updated successfully!");
+        } else {
+            System.out.println("Customer not found in the list.");
+        }
+    }
+
+    @Override
+    public void removeCustomer(Customer customerToRemove) {
+        if (customers.remove(customerToRemove)) {
+            System.out.println("Customer removed successfully!");
+        } else {
+            System.out.println("Customer not found in the list.");
+        }
     }
 
     @Override
@@ -56,11 +87,6 @@ public class InMemoryClaimProcessManager implements ClaimProcessManager{
     @Override
     public List<Claim> getAllClaims() {
         return new ArrayList<>(claims); // Return a copy to avoid modification of internal list
-    }
-
-    @Override
-    public List<Customer> getAllCustomers() {
-        return null;
     }
 
     @Override
