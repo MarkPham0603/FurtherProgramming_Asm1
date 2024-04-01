@@ -53,7 +53,7 @@ public class Claim {
         this.claimDate = claimDate;
     }
 
-    public Customer getInsuredPerson(String customerID) {
+    public Customer getInsuredPerson() {
         return insuredPerson;
     }
 
@@ -156,7 +156,7 @@ public class Claim {
             ReceiverBankInfo receiverBankInfo = new ReceiverBankInfo(bankName, accountName, accountNumber);
 
             // Retrieve Customer object based on customerID
-            Customer insuredPerson = getInsuredPerson(customerID); // Replace with your actual customer retrieval logic
+            Customer insuredPerson = getInsuredPerson(); // Replace with your actual customer retrieval logic
 
             // Create and add Claim object
             Claim claim = new Claim(id, claimDate, insuredPerson, cardNumber, examDate, documentPaths, claimAmount, status, receiverBankInfo);
@@ -193,5 +193,14 @@ public class Claim {
 
         writer.close();
     }
+
+    public boolean matchesSearchCriteria(String searchCriteria) {
+        // Implement search logic based on claim attributes
+        // Here's an example considering ID, customer name, and status
+        return  getId().contains(searchCriteria) ||
+                getInsuredPerson().getFullName().toLowerCase().contains(searchCriteria.toLowerCase()) ||
+                getStatus().toLowerCase().contains(searchCriteria.toLowerCase());
+    }
+
 }
 

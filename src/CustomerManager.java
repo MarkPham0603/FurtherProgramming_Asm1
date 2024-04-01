@@ -45,19 +45,17 @@ public class CustomerManager {
     public List<Customer> readCustomerReport(String filename) throws IOException {
         List<Customer> customers = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new FileReader(filename));
+        String line;
 
         try {
-            // Skip header row (assuming the first line is a header)
-            reader.readLine();
-
-            String line;
             while ((line = reader.readLine()) != null) {
-                // Extract customer information from each line (assuming comma-separated values)
-                String[] data = line.split(",");
+                // Extract customer information based on your text file format
+                String[] data = line.split("\\t"); // Split on tabs by default (adjust delimiter if needed)
                 String id = data[0].trim();
                 String fullName = data[1].trim();
                 String type = data[2].trim();
                 Customer customer;
+
                 if (type.equals("Policy Holder")) {
                     customer = new PolicyHolder(id, fullName, new ArrayList<>(), null); // Placeholder for insurance card
                 } else if (type.equals("Dependent")) {
@@ -69,7 +67,7 @@ public class CustomerManager {
                 customers.add(customer);
             }
         } finally {
-            reader.close();
+            reader.close();  // Ensure closing the reader even if exceptions occur
         }
 
         return customers;
@@ -81,8 +79,11 @@ public class CustomerManager {
         String id = generateUniqueID();
         System.out.println("Policy Holder ID: " + id);
 
-        System.out.println("Enter Policy Holder Full Name: ");
+        System.out.println("Enter Policy Holder Full Name (required): ");
         String fullName = scanner.nextLine().trim();
+        if (fullName.isEmpty()) {
+            throw new IllegalArgumentException("Full name cannot be empty.");
+        }
 
         // Get optional dependent information
         List<Dependent> dependents = new ArrayList<>();

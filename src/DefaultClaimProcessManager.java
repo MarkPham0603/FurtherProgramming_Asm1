@@ -6,6 +6,8 @@ public class DefaultClaimProcessManager implements ClaimProcessManager{
     private List<Customer> customers;
     private List<Claim> claims;
 
+
+
     public DefaultClaimProcessManager() {
         this.customers = new ArrayList<>();
         this.claims = new ArrayList<>();
@@ -22,12 +24,16 @@ public class DefaultClaimProcessManager implements ClaimProcessManager{
     }
     @Override
     public void updateCustomer(Customer updatedCustomer) {
-        int index = customers.indexOf(updatedCustomer);
-        if (index != -1) {
-            customers.set(index, updatedCustomer); // Update the object at the found index
-            System.out.println("Customer information updated successfully!");
-        } else {
-            System.out.println("Customer not found in the list.");
+        try {
+            int index = customers.indexOf(updatedCustomer);
+            if (index != -1) {
+                customers.set(index, updatedCustomer);
+                System.out.println("Customer information updated successfully!");
+            } else {
+                System.out.println("Customer not found in the list.");
+            }
+        } catch (Exception e) {
+            System.err.println("Error updating customer: " + e.getMessage());
         }
     }
 
@@ -108,5 +114,16 @@ public class DefaultClaimProcessManager implements ClaimProcessManager{
             }
         }
         return -1;
+    }
+
+    @Override
+    public List<Claim> searchClaims(String searchCriteria) {
+        List<Claim> filteredClaims = new ArrayList<>();
+        for (Claim claim : claims) {
+            if (claim.matchesSearchCriteria(searchCriteria)) { // Delegate search logic to Claim class
+                filteredClaims.add(claim);
+            }
+        }
+        return filteredClaims;
     }
 }

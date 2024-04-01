@@ -20,4 +20,6 @@ public interface ClaimProcessManager {
     void updateCustomer(Customer updatedCustomer);
 
     void removeCustomer(Customer customerToRemove);
+
+    List<Claim> searchClaims(String searchCriteria);
 }
