@@ -59,7 +59,7 @@ public class CustomerManager {
                 if (type.equals("Policy Holder")) {
                     customer = new PolicyHolder(id, fullName, new ArrayList<>(), null); // Placeholder for insurance card
                 } else if (type.equals("Dependent")) {
-                    customer = new Dependent(null); // Policyholder will be assigned later
+                    customer = new Dependent(null); // No need to assign policy holder here
                 } else {
                     // Handle unexpected customer type
                     throw new RuntimeException("Unknown customer type: " + type);
@@ -72,6 +72,7 @@ public class CustomerManager {
 
         return customers;
     }
+
     public PolicyHolder registerPolicyHolder() throws IOException {
         Scanner scanner = new Scanner(System.in);
 
@@ -87,7 +88,7 @@ public class CustomerManager {
 
         // Get optional dependent information
         List<Dependent> dependents = new ArrayList<>();
-        addDependents(dependents);
+        addDependents(dependents, id); // Pass PolicyHolder ID to establish connection
 
         // Skip adding insurance card during registration
         InsuranceCard insuranceCard = null;
@@ -103,30 +104,52 @@ public class CustomerManager {
         return newPolicyHolder;
     }
 
-    public void addDependents(List<Dependent> dependents) throws IOException {
+    public void addDependents(List<Dependent> dependents, String policyHolderID) throws IOException {
         Scanner scanner = new Scanner(System.in);
         char addDependent;
 
         do {
             System.out.println("Do you want to add a dependent (y/n)? ");
-            addDependent = scanner.nextLine().charAt(0);
-            addDependent = Character.toLowerCase(addDependent);
+            addDependent = scanner.nextLine().charAt(0); // Get the first character only
+            addDependent = Character.toLowerCase(addDependent); // Convert to lowercase for easier comparison
 
             if (addDependent == 'y') {
-                System.out.println("Enter Dependent ID: "); // Can be user-entered or system-generated
-                String dependentId = scanner.nextLine().trim();
+                System.out.println("Enter Dependent Full Name (required): ");
+                String fullName = scanner.nextLine().trim();
+                if (fullName.isEmpty()) {
+                    throw new IllegalArgumentException("Full name cannot be empty.");
+                }
 
-                System.out.println("Enter Dependent Full Name: ");
-                String dependentName = scanner.nextLine().trim();
+                // Create a Dependent object
+                Dependent dependent = new Dependent(null); // Assuming no PolicyHolder argument in constructor
 
-                // Assuming no further dependent attributes, create a Dependent object
-                dependents.add(new Dependent(null)); // Policyholder will be assigned later
+                // Find the PolicyHolder object based on policyHolderID (implementation needed)
+                PolicyHolder policyHolder = findPolicyHolderById(policyHolderID);
+
+                if (policyHolder != null) {
+                    // Establish connection by setting the policy holder in the Dependent
+                    dependent.setPolicyHolder(policyHolder);
+
+                    // Add the Dependent to the PolicyHolder's internal list (assuming it exists)
+                    policyHolder.getDependents().add(dependent);
+                } else {
+                    System.out.println("Policy Holder not found with ID: " + policyHolderID);
+                }
             }
         } while (addDependent == 'y');
+    }
 
-        for (Dependent dependent : dependents) {
-            claimProcessManager.registerCustomer(dependent); // Add each dependent to the central customer list
+    private PolicyHolder findPolicyHolderById(String policyHolderID) {
+        List<Customer> allCustomers = claimProcessManager.getAllCustomers();
+
+        for (Customer customer : allCustomers) {
+            if (customer instanceof PolicyHolder && // Check if it's a PolicyHolder
+                    customer.getID().equals(policyHolderID)) { // Compare IDs
+                return (PolicyHolder) customer; // Cast to PolicyHolder if found
+            }
         }
+
+        return null; // Return null if not found
     }
 
     // New function to add an insurance card to an existing PolicyHolder

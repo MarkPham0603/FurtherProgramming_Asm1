@@ -12,6 +12,7 @@ public class Dependent extends Customer {
         this.policyHolder = policyHolder;
     }
 
+
     public PolicyHolder getPolicyHolder() {
         return policyHolder;
     }
