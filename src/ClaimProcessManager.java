@@ -22,4 +22,7 @@ public interface ClaimProcessManager {
     void removeCustomer(Customer customerToRemove);
 
     List<Claim> searchClaims(String searchCriteria);
+
+    List<InsuranceCard> getAllInsuranceCards();
+    void registerInsuranceCard(InsuranceCard insuranceCard);
 }

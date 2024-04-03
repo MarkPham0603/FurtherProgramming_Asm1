@@ -10,13 +10,8 @@ public class Main {
     public static void main(String[] args) throws IOException, ClaimProcessException {
         ClaimProcessManager claimProcessManager = new DefaultClaimProcessManager();
         CustomerManager customerManager = new CustomerManager();
-        /**
-        PolicyHolder policyHolder = customerManager.registerPolicyHolder();
-        customerManager.generateCustomerReport("customer.txt");**/
+        customerManager.readInsuranceCardReport("InsuranceCard.txt");
 
-        for (Customer customer : customerManager.readCustomerReport("customer.txt")) {
-            
-        }
 
     }
         /**

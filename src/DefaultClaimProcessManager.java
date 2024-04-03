@@ -5,12 +5,14 @@ import java.util.List;
 public class DefaultClaimProcessManager implements ClaimProcessManager{
     private List<Customer> customers;
     private List<Claim> claims;
+    private List<InsuranceCard> insuranceCards;
 
 
 
     public DefaultClaimProcessManager() {
         this.customers = new ArrayList<>();
         this.claims = new ArrayList<>();
+        this.insuranceCards = new ArrayList<>();
     }
 
     @Override
@@ -125,5 +127,14 @@ public class DefaultClaimProcessManager implements ClaimProcessManager{
             }
         }
         return filteredClaims;
+    }
+
+    @Override
+    public List<InsuranceCard> getAllInsuranceCards() {
+        return insuranceCards;
+    }
+
+    public void registerInsuranceCard(InsuranceCard insuranceCard) {
+        insuranceCards.add(insuranceCard);
     }
 }
