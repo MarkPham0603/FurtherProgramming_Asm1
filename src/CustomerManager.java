@@ -188,8 +188,11 @@ public class CustomerManager {
         cal.add(Calendar.MONTH, 10);
         Date expirationDate = cal.getTime();
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String formattedExpirationDate = dateFormat.format(cal.getTime());
+
         // Create an InsuranceCard object with the PolicyHolder reference
-        InsuranceCard insuranceCard = new InsuranceCard(cardNumber, policyHolder, cardOwner, expirationDate);
+        InsuranceCard insuranceCard = new InsuranceCard(cardNumber, policyHolder, cardOwner, formattedExpirationDate);
 
         // Update the PolicyHolder object to set the insurance card (optional)
         policyHolder.setInsuranceCard(insuranceCard);
@@ -348,7 +351,7 @@ public class CustomerManager {
                 }
 
                 // Extract card information based on file format
-                String[] data = line.split(","); // Assuming comma-separated values
+                String[] data = line.split(", "); // Assuming comma-separated values
 
                 // Check for valid data length (at least 4 elements)
                 if (data.length < 4) {
@@ -359,17 +362,16 @@ public class CustomerManager {
                 String cardNumber = data[0].trim();
                 String policyHolderID = data[1].trim();
                 String policyOwner = data[2].trim();
-                Date expirationDate = data[3].trim(); // Adjust format if needed
+                String expirationDate = data[3].trim(); // Adjust format if needed
 
                 // You'll likely need to modify this to retrieve the PolicyHolder object
                 PolicyHolder cardHolder = findPolicyHolderById(policyHolderID);
 
                 InsuranceCard insuranceCard = new InsuranceCard(cardNumber, cardHolder, policyOwner, expirationDate);
                 insuranceCards.add(insuranceCard);
+                claimProcessManager.registerInsuranceCard(insuranceCard);
+                System.out.println(claimProcessManager.getAllInsuranceCards());
             }
-        } catch (ParseException e) {
-            System.out.println("Error parsing date: " + e.getMessage());
-            // Handle parsing errors appropriately
         } finally {
             reader.close();
         }
