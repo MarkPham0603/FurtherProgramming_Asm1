@@ -15,7 +15,7 @@ public class DefaultClaimProcessManager implements ClaimProcessManager{
 
     @Override
     public List<Customer> getAllCustomers() {
-        return Collections.unmodifiableList(customers); // Return an unmodifiable list
+        return customers; // Return an unmodifiable list
     }
 
     @Override

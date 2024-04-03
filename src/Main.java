@@ -10,17 +10,14 @@ public class Main {
     public static void main(String[] args) throws IOException, ClaimProcessException {
         ClaimProcessManager claimProcessManager = new DefaultClaimProcessManager();
         CustomerManager customerManager = new CustomerManager();
-
-        List<Customer> customers = new ArrayList<>();
+        /**
         PolicyHolder policyHolder = customerManager.registerPolicyHolder();
-        customers.add(policyHolder);
+        customerManager.generateCustomerReport("customer.txt");**/
 
-        // Prompt user to add dependents
-        // Add Insurance Cards (remaining code)
-        // ...
+        for (Customer customer : customerManager.readCustomerReport("customer.txt")) {
+            
+        }
 
-        System.out.println(customers);
-        // ... (rest of the code remains the same)
     }
         /**
         // Read Customers from Report (Optional)

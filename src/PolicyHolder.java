@@ -51,16 +51,4 @@ public class PolicyHolder extends Customer {
     public String getID(){
         return super.getId();
     }
-
-    public List<Dependent> sortDependentsByName() {
-        List<Dependent> sortedDependents = new ArrayList<>(dependents);
-        Collections.sort(sortedDependents, (d1, d2) -> d1.getFullName().compareTo(d2.getFullName()));
-        return sortedDependents;
-    }
-
-    public List<Dependent> sortDependentsByID() {
-        List<Dependent> sortedDependents = new ArrayList<>(dependents);
-        Collections.sort(sortedDependents, (d1, d2) -> d1.getId().compareTo(d2.getId()));
-        return sortedDependents;
-    }
 }

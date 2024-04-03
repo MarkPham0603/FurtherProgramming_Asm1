@@ -29,8 +29,6 @@ public class CustomerManager {
         BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
 
         try {
-            // Write header row (optional)
-            writer.write("Customer ID, Full Name, Type\n");
 
             // Write customer data
             for (Customer customer : customers) {
@@ -43,14 +41,19 @@ public class CustomerManager {
 
     // Function to read customer information from text file
     public List<Customer> readCustomerReport(String filename) throws IOException {
-        List<Customer> customers = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new FileReader(filename));
         String line;
 
         try {
             while ((line = reader.readLine()) != null) {
                 // Extract customer information based on your text file format
-                String[] data = line.split("\\t"); // Split on tabs by default (adjust delimiter if needed)
+                String[] data = line.split(",");// Split on tabs by default (adjust delimiter if needed)
+                if (data.length >= 3) {
+                    // Proceed with extracting ID, full name, and type
+                } else {
+                    System.out.println("Invalid line format: " + line);
+                    // Handle the invalid line (e.g., skip it or log an error)
+                }
                 String id = data[0].trim();
                 String fullName = data[1].trim();
                 String type = data[2].trim();
@@ -59,18 +62,18 @@ public class CustomerManager {
                 if (type.equals("Policy Holder")) {
                     customer = new PolicyHolder(id, fullName, new ArrayList<>(), null); // Placeholder for insurance card
                 } else if (type.equals("Dependent")) {
-                    customer = new Dependent(null); // No need to assign policy holder here
+                    customer = new Dependent(id,fullName,new ArrayList<>(),null); // No need to assign policy holder here
                 } else {
                     // Handle unexpected customer type
                     throw new RuntimeException("Unknown customer type: " + type);
                 }
-                customers.add(customer);
+                claimProcessManager.registerCustomer(customer);
             }
         } finally {
             reader.close();  // Ensure closing the reader even if exceptions occur
         }
-
-        return customers;
+        System.out.println(claimProcessManager.getAllCustomers());
+        return claimProcessManager.getAllCustomers();
     }
 
     public PolicyHolder registerPolicyHolder() throws IOException {
@@ -88,7 +91,7 @@ public class CustomerManager {
 
         // Get optional dependent information
         List<Dependent> dependents = new ArrayList<>();
-        addDependents(dependents, id); // Pass PolicyHolder ID to establish connection
+        // Pass PolicyHolder ID to establish connection
 
         // Skip adding insurance card during registration
         InsuranceCard insuranceCard = null;
@@ -96,11 +99,14 @@ public class CustomerManager {
         // Create the PolicyHolder object
         PolicyHolder newPolicyHolder = new PolicyHolder(id, fullName, dependents, insuranceCard);
         claimProcessManager.registerCustomer(newPolicyHolder);
+        addDependents(dependents, id);
 
         System.out.println("Policy holder successfully registered!");
         System.out.println("Policy Holder ID: " + newPolicyHolder.getID());
         System.out.println("Policy Holder Name: " + newPolicyHolder.getFullName());
 
+        displayAndCountDependents(newPolicyHolder);
+        System.out.println(claimProcessManager.getAllCustomers());
         return newPolicyHolder;
     }
 
@@ -114,6 +120,8 @@ public class CustomerManager {
             addDependent = Character.toLowerCase(addDependent); // Convert to lowercase for easier comparison
 
             if (addDependent == 'y') {
+                String id = generateUniqueID();
+                System.out.println("Dpendent ID: " + id);
                 System.out.println("Enter Dependent Full Name (required): ");
                 String fullName = scanner.nextLine().trim();
                 if (fullName.isEmpty()) {
@@ -121,7 +129,7 @@ public class CustomerManager {
                 }
 
                 // Create a Dependent object
-                Dependent dependent = new Dependent(null); // Assuming no PolicyHolder argument in constructor
+                Dependent dependent = new Dependent(id,fullName,null,null); // Assuming no PolicyHolder argument in constructor
 
                 // Find the PolicyHolder object based on policyHolderID (implementation needed)
                 PolicyHolder policyHolder = findPolicyHolderById(policyHolderID);
@@ -135,6 +143,7 @@ public class CustomerManager {
                 } else {
                     System.out.println("Policy Holder not found with ID: " + policyHolderID);
                 }
+                claimProcessManager.registerCustomer(dependent);
             }
         } while (addDependent == 'y');
     }
@@ -278,6 +287,24 @@ public class CustomerManager {
                 break;
             default:
                 System.out.println("Invalid choice.");
+        }
+    }
+    public void displayAndCountDependents(PolicyHolder policyHolder) {
+        if (policyHolder == null) {
+            System.out.println("Invalid PolicyHolder. Please register a policy holder first.");
+            return;
+        }
+
+        List<Dependent> dependents = policyHolder.getDependents();
+        int dependentCount = dependents.size();
+
+        if (dependentCount == 0) {
+            System.out.println(policyHolder.getFullName() + " has no dependents registered.");
+        } else {
+            System.out.println(policyHolder.getFullName() + " has " + dependentCount + " dependents");
+            for (Dependent dependent : dependents) {
+                System.out.println("- " + dependent.getFullName());  // Assuming getFullName() in Dependent
+            }
         }
     }
 }

@@ -8,10 +8,11 @@ public class Dependent extends Customer {
 
     // Getters, setters, constructor (including referencing policyholder)
 
-    public Dependent(PolicyHolder policyHolder) {
+
+    public Dependent(String id, String fullName, List<Claim> claims, PolicyHolder policyHolder) {
+        super(id, fullName, claims);
         this.policyHolder = policyHolder;
     }
-
 
     public PolicyHolder getPolicyHolder() {
         return policyHolder;
