@@ -1,6 +1,8 @@
 /**
  * @author <Pham Minh Hoa - s3929256>
  */
+import jdk.internal.icu.text.UnicodeSet;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,10 +14,9 @@ public class PolicyHolder extends Customer {
     // Getters, setters, constructor (including handling dependents and insurance card)
 
 
-    public PolicyHolder(String id, String fullName, List<Dependent> dependents, InsuranceCard insuranceCard) {
-        super.setId(id);
-        super.setFullName(fullName);
-        this.dependents = dependents;
+    public PolicyHolder(String id, String fullName, List<Claim> claims, List<Dependent> dependents, InsuranceCard insuranceCard) {
+        super(id, fullName, claims);
+        this.dependents = new ArrayList<>();
         this.insuranceCard = insuranceCard;
     }
 
@@ -35,8 +36,6 @@ public class PolicyHolder extends Customer {
         this.insuranceCard = insuranceCard;
     }
 
-
-
     @Override
     public String getType() {
         return "Policy Holder";
@@ -50,5 +49,9 @@ public class PolicyHolder extends Customer {
     @Override
     public String getID(){
         return super.getId();
+    }
+
+    public void addDependent (Dependent dependent){
+        dependents.add(dependent);
     }
 }

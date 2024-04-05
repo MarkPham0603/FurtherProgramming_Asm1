@@ -193,7 +193,7 @@ public class DefaultClaimProcessManager implements ClaimProcessManager{
                 String cardNumber = data[3];
                 String examDate = data[4]; // Assuming date format
 
-                List<String> documents = new ArrayList<>(Arrays.asList(data[5].split(","))); // Convert comma-separated document paths to a list
+                List<String> documents = new ArrayList<>(Arrays.asList(data[5].split(";"))); // Convert comma-separated document paths to a list
 
                 int claimAmount = Integer.parseInt(data[6]);
                 String status = data[7];

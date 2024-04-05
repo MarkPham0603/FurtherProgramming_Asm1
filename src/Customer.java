@@ -53,6 +53,10 @@ public abstract class Customer {
         return id;
     }
 
+    public void addClaim (Claim claim){
+        claims.add(claim);
+    }
+
     @Override
     public String toString() {
         return "Customer{" +

@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 public class CustomerManager {
     private ClaimProcessManager claimProcessManager;
+
     public CustomerManager() {
         // Use a concrete implementation of ClaimProcessManager
         this.claimProcessManager = new DefaultClaimProcessManager();
@@ -31,10 +32,40 @@ public class CustomerManager {
         BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
 
         try {
-
-            // Write customer data
+            // Write customer data with additional information
             for (Customer customer : customers) {
-                writer.write(String.format("%s, %s, %s\n", customer.getID(), customer.getFullName(), customer.getType()));
+                String additionalInfo = "";
+
+                if (customer instanceof PolicyHolder) {
+                    PolicyHolder policyHolder = (PolicyHolder) customer;
+                    List<String> claimIdList = new ArrayList<>();  // List to store claim IDs
+                    for (Claim claim : policyHolder.getClaims()) {  // Assuming PolicyHolder has a getClaims() method
+                        claimIdList.add(claim.getId());
+                    }
+                    String claimIds = String.join(";", claimIdList);  // Join claim IDs into a comma-separated string
+
+                    List<String> dependentIdList = new ArrayList<>();  // List to store dependent IDs
+                    for (Dependent dependent : policyHolder.getDependents()) {  // Assuming PolicyHolder has getDependents()
+                        dependentIdList.add(dependent.getId());
+                    }
+                    String dependentIds = String.join(";", dependentIdList);  // Join dependent IDs into a comma-separated string
+
+                    String insuranceCardId = policyHolder.getInsuranceCard().getCardNumber();  // Assuming PolicyHolder has getInsuranceCardId()
+
+                    additionalInfo = String.format(", %s, %s, %s", claimIds, dependentIds, insuranceCardId);
+                } else if (customer instanceof Dependent) {
+                    Dependent dependent = (Dependent) customer;
+                    List<String> claimIdList = new ArrayList<>();  // List to store claim IDs
+                    for (Claim claim : dependent.getClaims()) {  // Assuming Dependent has a getClaims() method
+                        claimIdList.add(claim.getId());
+                    }
+                    String claimIds = String.join(";", claimIdList);  // Join claim IDs into a comma-separated string
+                    String policyHolderId = dependent.getPolicyHolder().getID();  // Assuming Dependent has getPolicyHolderId()
+
+                    additionalInfo = String.format(", %s, %s", claimIds, policyHolderId);
+                }
+
+                writer.write(String.format("%s, %s, %s%s\n", customer.getID(), customer.getFullName(), customer.getType(), additionalInfo));
             }
         } finally {
             writer.close();
@@ -43,39 +74,76 @@ public class CustomerManager {
 
     // Function to read customer information from text file
     public List<Customer> readCustomerReport(String filename) throws IOException {
+        List<Customer> customers = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new FileReader(filename));
         String line;
 
         try {
             while ((line = reader.readLine()) != null) {
                 // Extract customer information based on your text file format
-                String[] data = line.split(",");// Split on tabs by default (adjust delimiter if needed)
+                String[] data = line.split(","); // Split on tabs by default (adjust delimiter if needed)
                 if (data.length >= 3) {
-                    // Proceed with extracting ID, full name, and type
+                    String id = data[0].trim();
+                    String fullName = data[1].trim();
+                    String type = data[2].trim();
+
+                    Customer customer;
+                    if (type.equals("Policy Holder")) {
+                        customer = new PolicyHolder(id, fullName, new ArrayList<>(), null,null); // Placeholder for insurance card
+                    } else if (type.equals("Dependent")) {
+                        customer = new Dependent(id, fullName, new ArrayList<>(), null); // No need to assign policy holder here
+                    } else {
+                        // Handle unexpected customer type (throw exception or log error)
+                        System.out.println("Unknown customer type: " + type);
+                        continue;
+                    }
+
+                    // Extract additional information based on customer type
+                    if (data.length > 3) {
+                        String[] additionalInfo = Arrays.copyOfRange(data, 3, data.length);  // Extract additional data from index 3 onwards
+
+                        if (customer instanceof PolicyHolder) {
+                            PolicyHolder policyHolder = (PolicyHolder) customer;
+                            String[] claimIds = additionalInfo[0].split(";");  // Split claim IDs
+                            for (String claimId : claimIds) {
+                                // Assuming you have a method to add claim by ID (update as needed)
+                                policyHolder.addClaim(claimProcessManager.getClaim(claimId));
+                            }
+
+                            String[] dependentIds = additionalInfo[1].split(";");  // Split dependent IDs
+                            for (String dependentId : dependentIds) {
+                                // Assuming you have a method to add dependent by ID (update as needed)
+                                policyHolder.addDependent(findDependentById(dependentId));
+                            }
+
+                            String insuranceCardId = additionalInfo[2];
+                            policyHolder.setInsuranceCardid(insuranceCardId);
+                        } else if (customer instanceof Dependent) {
+                            Dependent dependent = (Dependent) customer;
+                            String[] claimIds = additionalInfo[0].split(",");  // Split claim IDs
+                            for (String claimId : claimIds) {
+                                // Assuming you have a method to add claim by ID (update as needed)
+                                dependent.addClaim(claimProcessManager.getClaim(claimId));
+                            }
+
+                            String policyHolderId = additionalInfo[1];
+                            dependent.setPolicyHolderId(policyHolderId);
+                        }
+                    }
+
+                    customers.add(customer);
                 } else {
                     System.out.println("Invalid line format: " + line);
                     // Handle the invalid line (e.g., skip it or log an error)
                 }
-                String id = data[0].trim();
-                String fullName = data[1].trim();
-                String type = data[2].trim();
-                Customer customer;
-
-                if (type.equals("Policy Holder")) {
-                    customer = new PolicyHolder(id, fullName, new ArrayList<>(), null); // Placeholder for insurance card
-                } else if (type.equals("Dependent")) {
-                    customer = new Dependent(id,fullName,new ArrayList<>(),null); // No need to assign policy holder here
-                } else {
-                    // Handle unexpected customer type
-                    throw new RuntimeException("Unknown customer type: " + type);
-                }
-                claimProcessManager.registerCustomer(customer);
             }
+        } catch (ClaimNotFoundException e) {
+            throw new RuntimeException(e);
         } finally {
             reader.close();  // Ensure closing the reader even if exceptions occur
         }
 
-        return claimProcessManager.getAllCustomers();
+        return customers;
     }
 
     public PolicyHolder registerPolicyHolder() throws IOException {
@@ -93,13 +161,14 @@ public class CustomerManager {
 
         // Get optional dependent information
         List<Dependent> dependents = new ArrayList<>();
+        List<Claim> claims = new ArrayList<>();
         // Pass PolicyHolder ID to establish connection
 
         // Skip adding insurance card during registration
         InsuranceCard insuranceCard = null;
 
         // Create the PolicyHolder object
-        PolicyHolder newPolicyHolder = new PolicyHolder(id, fullName, dependents, insuranceCard);
+        PolicyHolder newPolicyHolder = new PolicyHolder(id, fullName, claims, dependents, insuranceCard);
         claimProcessManager.registerCustomer(newPolicyHolder);
         addDependents(dependents, id);
         addInsuranceCard(newPolicyHolder);
@@ -164,6 +233,19 @@ public class CustomerManager {
         return null; // Return null if not found
     }
 
+    public Dependent findDependentById(String dependentID) {
+        List<Customer> allCustomers = claimProcessManager.getAllCustomers();
+
+        for (Customer customer : allCustomers) {
+            if (customer instanceof Dependent &&
+                    customer.getID().equals(dependentID)) { // Compare IDs
+                return (Dependent) customer;
+            }
+        }
+
+        return null; // Return null if not found
+    }
+
     // New function to add an insurance card to an existing PolicyHolder
     public void addInsuranceCard(PolicyHolder policyHolder) throws IOException {
         if (policyHolder == null) {
@@ -172,31 +254,40 @@ public class CustomerManager {
         }
 
         Scanner scanner = new Scanner(System.in);
+        char addInsurCard;
+        do {
+            System.out.println("Do you want to add a dependent (y/n)? ");
+            addInsurCard = scanner.nextLine().charAt(0); // Get the first character only
+            addInsurCard = Character.toLowerCase(addInsurCard);
+            if (addInsurCard == 'y'){
+                System.out.println("Enter Insurance Card Number: ");
+                String cardNumber = scanner.nextLine().trim();
 
-        System.out.println("Enter Insurance Card Number: ");
-        String cardNumber = scanner.nextLine().trim();
+                // Assuming you have a method to get the current date
+                Date currentDate = new Date(); // Replace with your logic to get current date
 
-        // Assuming you have a method to get the current date
-        Date currentDate = new Date(); // Replace with your logic to get current date
-
-        String cardOwner = "RMIT";
+                String cardOwner = "RMIT";
 
 
-        // Calculate expiration date by adding 10 months
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(currentDate);
-        cal.add(Calendar.MONTH, 10);
-        Date expirationDate = cal.getTime();
+                // Calculate expiration date by adding 10 months
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(currentDate);
+                cal.add(Calendar.MONTH, 10);
+                Date expirationDate = cal.getTime();
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        String formattedExpirationDate = dateFormat.format(cal.getTime());
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                String formattedExpirationDate = dateFormat.format(cal.getTime());
 
-        // Create an InsuranceCard object with the PolicyHolder reference
-        InsuranceCard insuranceCard = new InsuranceCard(cardNumber, policyHolder, cardOwner, formattedExpirationDate);
+                // Create an InsuranceCard object with the PolicyHolder reference
+                InsuranceCard insuranceCard = new InsuranceCard(cardNumber, policyHolder, cardOwner, formattedExpirationDate);
 
-        // Update the PolicyHolder object to set the insurance card (optional)
-        policyHolder.setInsuranceCard(insuranceCard);
-        claimProcessManager.registerInsuranceCard(insuranceCard);
+                // Update the PolicyHolder object to set the insurance card (optional)
+                policyHolder.setInsuranceCard(insuranceCard);
+                claimProcessManager.registerInsuranceCard(insuranceCard);
+                addInsurCard = 'n';
+            }
+        } while (addInsurCard == 'y');
+
 
     }
     private String generateUniqueID() {
