@@ -1,6 +1,8 @@
 /**
  * @author <Pham Minh Hoa - s3929256>
  */
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +18,7 @@ public interface ClaimProcessManager {
     List<Claim> filterClaimsByStatus(String status);
 
     void registerCustomer(Customer customer);
+    public void registerClaim(Claim claim);
 
     void updateCustomer(Customer updatedCustomer);
 
@@ -25,4 +28,9 @@ public interface ClaimProcessManager {
 
     List<InsuranceCard> getAllInsuranceCards();
     void registerInsuranceCard(InsuranceCard insuranceCard);
+
+    List<Claim> loadClaimsFromFile(String filename) throws IOException, ParseException;
+    void saveClaimsToFile(String filename) throws IOException;
+    Claim createClaimFromUserInput() throws ParseException, IOException;
+
 }

@@ -52,4 +52,12 @@ public abstract class Customer {
     public String getID() {
         return id;
     }
+
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "id='" + id + '\'' +
+                ", fullName='" + fullName + '\'' +
+                '}';
+    }
 }

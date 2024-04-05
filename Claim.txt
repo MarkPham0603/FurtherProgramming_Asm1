@@ -1,0 +1,2 @@
+id,claimDate,insuredPerson (CustomerID),cardNumber,examDate,documents (comma-separated paths),claimAmount,status,receiverBankInfo (bankName,accountName,accountNumber)
+123456,2024-04-05,3FHLW,12345,2024-04-05,abc,1000,New,ACB;HoaPham;9876

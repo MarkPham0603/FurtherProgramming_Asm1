@@ -1,6 +1,7 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class DefaultClaimProcessManager implements ClaimProcessManager{
     private List<Customer> customers;
@@ -15,6 +16,7 @@ public class DefaultClaimProcessManager implements ClaimProcessManager{
         this.insuranceCards = new ArrayList<>();
     }
 
+
     @Override
     public List<Customer> getAllCustomers() {
         return customers; // Return an unmodifiable list
@@ -23,6 +25,10 @@ public class DefaultClaimProcessManager implements ClaimProcessManager{
     @Override
     public void registerCustomer(Customer customer) {
         customers.add(customer);
+    }
+
+    public void registerClaim(Claim claim) {
+        claims.add(claim);
     }
     @Override
     public void updateCustomer(Customer updatedCustomer) {
@@ -94,7 +100,7 @@ public class DefaultClaimProcessManager implements ClaimProcessManager{
 
     @Override
     public List<Claim> getAllClaims() {
-        return new ArrayList<>(claims); // Return a copy to avoid modification of internal list
+        return claims; // Return a copy to avoid modification of internal list
     }
 
     @Override
@@ -136,5 +142,148 @@ public class DefaultClaimProcessManager implements ClaimProcessManager{
 
     public void registerInsuranceCard(InsuranceCard insuranceCard) {
         insuranceCards.add(insuranceCard);
+    }
+
+    public void saveClaimsToFile(String filename) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
+
+        try {
+
+            //writer.write("id,claimDate,insuredPerson (CustomerID),cardNumber,examDate,documents (comma-separated paths),claimAmount,status,receiverBankInfo (bankName,accountName,accountNumber)");
+            for (Claim claim : claims) {
+                // Format claim data into a comma-separated string
+                writer.write(String.format("%s,%s,%s,%s,%s,%s,%o,%s,%s",
+                        claim.getId(), claim.getClaimDate(), claim.getInsuredPerson().getId(), // Assuming Customer has an ID
+                        claim.getCardNumber(), claim.getExamDate(), String.join(",", claim.getDocuments()),
+                        claim.getClaimAmount(), claim.getStatus(),
+                        claim.getReceiverBankInfo().toString())); // Use ReceiverBankInfo's toString()
+
+            }
+        } finally {
+            writer.close();
+        }
+    }
+    public List<Claim> loadClaimsFromFile(String filename) throws IOException, ParseException {
+        CustomerManager customerManager = new CustomerManager();
+        customerManager.readCustomerReport("customer.txt");
+        BufferedReader reader = new BufferedReader(new FileReader(filename));
+        String line;
+
+        try {
+            reader.readLine(); // Skip header row (assuming it exists)
+
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length < 9) { // Adjust based on the number of expected data fields
+                    System.out.println("Invalid line format: " + line);
+                    continue;
+                }
+
+                // Parse claim data
+                String id = data[0];
+                String claimDate = data[1]; // Assuming date format
+
+                // Assuming Customer object retrieval by ID (modify as needed)
+                Customer insuredPerson = customerManager.findCustomerById(data[2]);
+                if (insuredPerson == null) {
+                    System.out.println("Customer not found for claim: " + data[2]);
+                    continue;
+                }
+
+                String cardNumber = data[3];
+                String examDate = data[4]; // Assuming date format
+
+                List<String> documents = new ArrayList<>(Arrays.asList(data[5].split(","))); // Convert comma-separated document paths to a list
+
+                int claimAmount = Integer.parseInt(data[6]);
+                String status = data[7];
+
+                String receiverBankInfoData = data[8];
+                String[] bankInfoParts = receiverBankInfoData.split(";"); // Assuming comma-separated bank info
+                ReceiverBankInfo receiverBankInfo = new ReceiverBankInfo(bankInfoParts[0], bankInfoParts[1], bankInfoParts[2]);
+
+                // Create a Claim object with the parsed data
+                Claim claim = new Claim(id, claimDate, insuredPerson, cardNumber, examDate, documents, claimAmount, status, receiverBankInfo);
+
+                // Add the claim object to the claims list
+                registerClaim(claim);
+            }
+        } finally {
+            reader.close();
+        }
+        System.out.println(getAllClaims());
+        return getAllClaims();
+    }
+
+    public Claim createClaimFromUserInput() throws ParseException, IOException {
+        CustomerManager customerManager = new CustomerManager();
+        customerManager.readCustomerReport("customer.txt");
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("** Enter Claim Information **");
+
+        System.out.print("Claim ID: ");
+        String claimId = scanner.nextLine().trim();
+
+        System.out.print("Claim Date (yyyy-MM-dd): ");
+        String claimDateString = scanner.nextLine().trim();
+        Date claimDate = new SimpleDateFormat("yyyy-MM-dd").parse(claimDateString);
+        String formattedClaimDate = new SimpleDateFormat("yyyy-MM-dd").format(claimDate);
+
+        System.out.print("Customer ID: ");
+        String customerId = scanner.nextLine().trim();
+        Customer insuredPerson = customerManager.findCustomerById(customerId);// Assuming you have a findCustomerById function
+        System.out.println(insuredPerson);
+
+        if (insuredPerson == null) {
+            System.out.println("Customer not found. Please try again.");
+            return null;  // Indicate unsuccessful claim creation
+        }
+
+        System.out.print("Insurance Card Number: ");
+        String cardNumber = scanner.nextLine().trim();
+
+        System.out.print("Exam Date (yyyy-MM-dd): ");
+        String examDateString = scanner.nextLine().trim();
+        Date examDate = new SimpleDateFormat("yyyy-MM-dd").parse(examDateString);
+        String formattedExamDate = new SimpleDateFormat("yyyy-MM-dd").format(examDate);
+
+
+        List<String> documents = new ArrayList<>();  // List to store document paths
+        boolean addMoreDocuments = true;
+        while (addMoreDocuments) {
+            System.out.print("Enter document path (or 'q' to quit): ");
+            String documentPath = scanner.nextLine().trim();
+            if (documentPath.equalsIgnoreCase("q")) {
+                addMoreDocuments = false;
+            } else {
+                documents.add(documentPath);
+            }
+        }
+
+        System.out.print("Claim Amount: ");
+        int claimAmount = Integer.parseInt(scanner.nextLine().trim());
+
+        System.out.print("Claim Status (New, Processing, Done): ");
+        String status = scanner.nextLine().trim();
+
+        System.out.println("** Enter Receiver Bank Information **");
+
+        System.out.print("Bank Name: ");
+        String bankName = scanner.nextLine().trim();
+
+        System.out.print("Account Name: ");
+        String accountName = scanner.nextLine().trim();
+
+        System.out.print("Account Number: ");
+        String accountNumber = scanner.nextLine().trim();
+
+        ReceiverBankInfo receiverBankInfo = new ReceiverBankInfo(bankName, accountName, accountNumber);
+
+        Claim claim = new Claim(claimId, formattedClaimDate, insuredPerson, cardNumber, formattedExamDate, documents, claimAmount, status, receiverBankInfo);
+        claims.add(claim);
+
+        System.out.println("Claim created successfully!");
+        return claim;
     }
 }

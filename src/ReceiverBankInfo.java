@@ -35,10 +35,8 @@ public class ReceiverBankInfo {
 
     @Override
     public String toString() {
-        return "ReceiverBankInfo{" +
-                "bankName='" + bankName + '\'' +
-                ", accountName='" + accountName + '\'' +
-                ", accountNumber='" + accountNumber + '\'' +
-                '}';
+        return bankName + ';' +
+                accountName + ';' +
+                accountNumber;
     }
 }

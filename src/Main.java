@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws IOException, ClaimProcessException {
+    public static void main(String[] args) throws IOException, ClaimProcessException, ParseException {
         ClaimProcessManager claimProcessManager = new DefaultClaimProcessManager();
         CustomerManager customerManager = new CustomerManager();
-        customerManager.readInsuranceCardReport("InsuranceCard.txt");
+        claimProcessManager.loadClaimsFromFile("Claim.txt");
 
 
     }

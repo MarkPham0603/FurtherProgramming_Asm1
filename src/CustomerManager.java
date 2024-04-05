@@ -28,7 +28,7 @@ public class CustomerManager {
     // Function to generate customer report (text file)
     public void generateCustomerReport(String filename) throws IOException {
         List<Customer> customers = sortCustomersByType(); // Sort by type before generating report
-        BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
 
         try {
 
@@ -74,7 +74,7 @@ public class CustomerManager {
         } finally {
             reader.close();  // Ensure closing the reader even if exceptions occur
         }
-        System.out.println(claimProcessManager.getAllCustomers());
+
         return claimProcessManager.getAllCustomers();
     }
 
@@ -200,7 +200,18 @@ public class CustomerManager {
 
     }
     private String generateUniqueID() {
-        return UUID.randomUUID().toString();
+        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+
+        // Generate 5 random characters from the alphabet
+        for (int i = 0; i < 5; i++) {
+            int index = random.nextInt(alphabet.length());
+            char randomChar = alphabet.charAt(index);
+            sb.append(randomChar);
+        }
+
+        return sb.toString();
     }
 
     public void updatePolicyHolder(PolicyHolder policyHolder) throws IOException {
@@ -320,7 +331,7 @@ public class CustomerManager {
     public void generateInsuranceCardReport(String filename) throws IOException {
         List<InsuranceCard> insuranceCards = claimProcessManager.getAllInsuranceCards(); // Assuming a way to get cards
         System.out.println(claimProcessManager.getAllInsuranceCards());
-        BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true));
 
         try {
             // Write header row (optional)
@@ -377,5 +388,17 @@ public class CustomerManager {
         }
 
         return insuranceCards;
+    }
+
+    public Customer findCustomerById(String customerId) {
+        List<Customer> allCustomers = claimProcessManager.getAllCustomers();
+
+        for (Customer customer : allCustomers) {
+            if (customer.getID().equals(customerId)) { // Compare IDs
+                return (PolicyHolder) customer; // Cast to PolicyHolder if found
+            }
+        }
+
+        return null; // Return null if not found
     }
 }
