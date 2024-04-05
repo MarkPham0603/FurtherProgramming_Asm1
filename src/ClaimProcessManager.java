@@ -31,6 +31,6 @@ public interface ClaimProcessManager {
 
     List<Claim> loadClaimsFromFile(String filename) throws IOException, ParseException;
     void saveClaimsToFile(String filename) throws IOException;
-    Claim createClaimFromUserInput() throws ParseException, IOException;
+    Claim createClaimFromUserInput(PolicyHolder policyHolder) throws ParseException, IOException;
 
 }

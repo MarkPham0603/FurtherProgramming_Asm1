@@ -215,9 +215,11 @@ public class DefaultClaimProcessManager implements ClaimProcessManager{
         return getAllClaims();
     }
 
-    public Claim createClaimFromUserInput() throws ParseException, IOException {
+    public Claim createClaimFromUserInput(PolicyHolder policyHolder) throws ParseException, IOException {
         CustomerManager customerManager = new CustomerManager();
-        customerManager.readCustomerReport("customer.txt");
+        if (policyHolder == null) {
+            System.out.println("Invalid PolicyHolder. Please register a policy holder first.");
+        }
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("** Enter Claim Information **");
@@ -230,9 +232,8 @@ public class DefaultClaimProcessManager implements ClaimProcessManager{
         Date claimDate = new SimpleDateFormat("yyyy-MM-dd").parse(claimDateString);
         String formattedClaimDate = new SimpleDateFormat("yyyy-MM-dd").format(claimDate);
 
-        System.out.print("Customer ID: ");
-        String customerId = scanner.nextLine().trim();
-        Customer insuredPerson = customerManager.findCustomerById(customerId);// Assuming you have a findCustomerById function
+        Customer insuredPerson = customerManager.findCustomerById(policyHolder.getID());
+        System.out.print("Customer ID: " + policyHolder.getID());
         System.out.println(insuredPerson);
 
         if (insuredPerson == null) {

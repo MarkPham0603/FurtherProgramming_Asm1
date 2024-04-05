@@ -10,7 +10,13 @@ public class Main {
     public static void main(String[] args) throws IOException, ClaimProcessException, ParseException {
         ClaimProcessManager claimProcessManager = new DefaultClaimProcessManager();
         CustomerManager customerManager = new CustomerManager();
-        claimProcessManager.loadClaimsFromFile("Claim.txt");
+        //customerManager.registerPolicyHolder();
+        //customerManager.generateCustomerReport("customer.txt");
+        customerManager.readCustomerReport("customer.txt");
+        //customerManager.generateInsuranceCardReport("insurancecard");
+        //customerManager.saveClaimsToFile("claim.txt");
+        //claimProcessManager.createClaimFromUserInput();
+        //claimProcessManager.saveClaimsToFile("claim.txt");
 
 
     }

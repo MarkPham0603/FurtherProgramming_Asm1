@@ -1,0 +1,3 @@
+ClaimID,ClaimDate,CustomerID,InsuranceCard,ExamDate,Document,ClaimAmount,ClaimStatus,ReceiverBankInfo
+12aa,2024-04-05,E9BG6,0,2025-04-05,def,144,New,ACB;HoaPham;9988
+13bb,2024-04-05,6KY7A,12345,2025-04-05,abc,200,New,VB;HienPham;7766

@@ -36,4 +36,16 @@ public class Dependent extends Customer {
     public String getID() {
         return super.getID();
     }
+
+    public void setPolicyHolderbyId (String policyHolderbyId) {
+        ClaimProcessManager claimProcessManager = new DefaultClaimProcessManager();
+        List<Customer> customers = claimProcessManager.getAllCustomers();
+        for (Customer customer: customers) {
+            if (policyHolderbyId.equals(customer.getID())){
+                this.policyHolder = (PolicyHolder) customer;
+            }else {
+                System.out.println("Can not found the Policy Holder ID!");
+            }
+        }
+    }
 }

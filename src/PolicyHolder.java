@@ -1,7 +1,6 @@
 /**
  * @author <Pham Minh Hoa - s3929256>
  */
-import jdk.internal.icu.text.UnicodeSet;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,5 +52,17 @@ public class PolicyHolder extends Customer {
 
     public void addDependent (Dependent dependent){
         dependents.add(dependent);
+    }
+
+    public void setInsuranceCardbyid (String insuranceCardbyid) {
+        ClaimProcessManager claimProcessManager = new DefaultClaimProcessManager();
+        List<InsuranceCard> insuranceCards = claimProcessManager.getAllInsuranceCards();
+        for (InsuranceCard insuranceCard1: insuranceCards) {
+            if (insuranceCardbyid.equals(insuranceCard1.getCardNumber())){
+                this.insuranceCard = insuranceCard1;
+            }else {
+                System.out.println("Can not found the Insurance Card ID!");
+            }
+        }
     }
 }
