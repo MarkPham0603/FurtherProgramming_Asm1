@@ -59,9 +59,7 @@ public abstract class Customer {
 
     @Override
     public String toString() {
-        return "Customer{" +
-                "id='" + id + '\'' +
-                ", fullName='" + fullName + '\'' +
-                '}';
+        return '{'+id + ';' +
+                fullName+'}';
     }
 }

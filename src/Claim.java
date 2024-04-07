@@ -118,5 +118,11 @@ public class Claim {
                 getStatus().toLowerCase().contains(searchCriteria.toLowerCase());
     }
 
+    @Override
+    public String toString() {
+        return id + ',' + claimDate + ',' + insuredPerson + ',' +cardNumber + ',' + examDate + ',' + documents + ',' + claimAmount + ',' + status + ',' + receiverBankInfo+'\n';
+    }
+
+
 }
 

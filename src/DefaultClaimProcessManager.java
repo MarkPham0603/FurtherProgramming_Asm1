@@ -153,7 +153,7 @@ public class DefaultClaimProcessManager implements ClaimProcessManager{
             for (Claim claim : claims) {
                 // Format claim data into a comma-separated string
                 writer.write(String.format("%s,%s,%s,%s,%s,%s,%o,%s,%s",
-                        claim.getId(), claim.getClaimDate(), claim.getInsuredPerson().getId(), // Assuming Customer has an ID
+                        claim.getId(), claim.getClaimDate(), claim.getInsuredPerson().getId(),
                         claim.getCardNumber(), claim.getExamDate(), String.join(",", claim.getDocuments()),
                         claim.getClaimAmount(), claim.getStatus(),
                         claim.getReceiverBankInfo().toString())); // Use ReceiverBankInfo's toString()
@@ -170,7 +170,7 @@ public class DefaultClaimProcessManager implements ClaimProcessManager{
         String line;
 
         try {
-            reader.readLine(); // Skip header row (assuming it exists)
+            reader.readLine(); // Skip header row (if exists)
 
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
@@ -181,7 +181,7 @@ public class DefaultClaimProcessManager implements ClaimProcessManager{
 
                 // Parse claim data
                 String id = data[0];
-                String claimDate = data[1]; // Assuming date format
+                String claimDate = data[1];
 
                 // Assuming Customer object retrieval by ID (modify as needed)
                 Customer insuredPerson = customerManager.findCustomerById(data[2]);
@@ -193,13 +193,13 @@ public class DefaultClaimProcessManager implements ClaimProcessManager{
                 String cardNumber = data[3];
                 String examDate = data[4]; // Assuming date format
 
-                List<String> documents = new ArrayList<>(Arrays.asList(data[5].split(";"))); // Convert comma-separated document paths to a list
+                List<String> documents = new ArrayList<>(Arrays.asList(data[5].split(";"))); // Convert ; separated document paths to a list
 
                 int claimAmount = Integer.parseInt(data[6]);
                 String status = data[7];
 
                 String receiverBankInfoData = data[8];
-                String[] bankInfoParts = receiverBankInfoData.split(";"); // Assuming comma-separated bank info
+                String[] bankInfoParts = receiverBankInfoData.split(";");
                 ReceiverBankInfo receiverBankInfo = new ReceiverBankInfo(bankInfoParts[0], bankInfoParts[1], bankInfoParts[2]);
 
                 // Create a Claim object with the parsed data

@@ -9,9 +9,6 @@ import java.util.Date;
 import java.util.Scanner;
 
 public class InsuranceCard {
-
-
-
     private String cardNumber;
     private PolicyHolder cardHolder;
     private String policyOwner;
@@ -34,7 +31,7 @@ public class InsuranceCard {
         this.cardHolder = cardHolder;
     }
 
-    public Customer getCardHolder() {
+    public PolicyHolder getCardHolder() {
         return cardHolder;
     }
 
@@ -62,7 +59,15 @@ public class InsuranceCard {
         this.expirationDate = expirationDate;
     }
 
-
+    @Override
+    public String toString() {
+        return "InsuranceCard{" +
+                "cardNumber='" + cardNumber + '\'' +
+                ", cardHolder=" + cardHolder +
+                ", policyOwner='" + policyOwner + '\'' +
+                ", expirationDate='" + expirationDate + '\'' +
+                '}';
+    }
 }
 
 

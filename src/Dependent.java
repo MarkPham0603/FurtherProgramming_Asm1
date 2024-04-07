@@ -48,4 +48,9 @@ public class Dependent extends Customer {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return getFullName() + ',' + policyHolder;
+    }
 }
